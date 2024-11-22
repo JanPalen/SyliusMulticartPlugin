@@ -14,6 +14,8 @@ trait OrderTrait
 {
     protected ?int $cartNumber = 1;
 
+    protected ?string $uuid = null;
+
     public function getCartNumber(): ?int
     {
         return $this->cartNumber;
@@ -22,5 +24,15 @@ trait OrderTrait
     public function setCartNumber(?int $cartNumber): void
     {
         $this->cartNumber = $cartNumber;
+    }
+
+    public function getUuid(): ?string
+    {
+        return $this->uuid;
+    }
+
+    public function setUuid(?string $uuid): void
+    {
+        $this->uuid = $uuid;
     }
 }

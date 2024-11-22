@@ -162,8 +162,9 @@ final class MultiCartContext extends RawMinkContext implements Context
     {
         $channel = $this->channelContext->getChannel();
         $customer = $this->customerContext->getCustomer();
+        $uuid = null;
 
-        $allCarts = $this->orderRepository->findCarts($channel, $customer);
+        $allCarts = $this->orderRepository->findCarts($channel, $customer, $uuid);
 
         $allCartsItemsNumber = [];
 

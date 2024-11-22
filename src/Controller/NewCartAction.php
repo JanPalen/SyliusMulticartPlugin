@@ -30,9 +30,11 @@ final class NewCartAction
 
     public function __invoke(): Response
     {
-        $this->cartCreator->createNewCart();
+        $response = new Response();
+
+        $this->cartCreator->createNewCart($response);
         $this->entityManager->flush();
 
-        return new Response();
+        return $response;
     }
 }

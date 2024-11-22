@@ -1,7 +1,7 @@
 services:
     BitBag\SyliusMultiCartPlugin\Factory\AjaxPartialCartFactoryInterface:
         alias: 'bitbag_sylius_multi_cart_plugin.helper.ajax_partial_cart'
-    
+
     bitbag_sylius_multi_cart_plugin.factory.ajax_partial_cart:
         class: BitBag\SyliusMultiCartPlugin\Factory\AjaxPartialCartFactory
         arguments:
@@ -9,10 +9,10 @@ services:
             - '@bitbag_sylius_multi_cart_plugin.factory.order_item_factory'
         tags:
             - { name: 'controller.service_arguments' }
-    
+
     BitBag\SyliusMultiCartPlugin\Factory\OrderItemFactoryInterface:
         alias: 'bitbag_sylius_multi_cart_plugin.helper.ajax_partial_cart_item'
-    
+
     bitbag_sylius_multi_cart_plugin.factory.order_item_factory:
         class: BitBag\SyliusMultiCartPlugin\Factory\OrderItemFactory
         arguments:
@@ -20,3 +20,5 @@ services:
         tags:
             - { name: 'controller.service_arguments' }
 
+    bitbag_sylius_multi_cart_plugin.factory.device_uuid_cookie_factory:
+        class: BitBag\SyliusMultiCartPlugin\Factory\DeviceUuidCookieFactory

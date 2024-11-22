@@ -19,15 +19,29 @@ use Sylius\Component\Core\Model\OrderInterface;
 /** @phpstan-ignore-next-line - extends generic class */
 class OrderRepository extends BaseOrderRepository implements OrderRepositoryInterface
 {
-    public function findCarts(ChannelInterface $channel, ?CustomerInterface $customer): array
+    public function findCarts(ChannelInterface $channel, ?CustomerInterface $customer, ?string $uuid): array
     {
-        return $this->createQueryBuilder('o')
+        $queryBuilder = $this->createQueryBuilder('o')
             ->andWhere('o.state = :state')
             ->andWhere('o.channel = :channel')
-            ->andWhere('o.customer = :customer')
             ->setParameter('state', OrderInterface::STATE_CART)
             ->setParameter('channel', $channel)
-            ->setParameter('customer', $customer)
+        ;
+
+        if ($customer !== null) {
+            $queryBuilder
+                ->andWhere('o.customer = :customer')
+                ->setParameter('customer', $customer)
+            ;
+        }
+
+        if ($customer === null && $uuid !== null) {
+            $queryBuilder->andWhere('o.uuid = :uuid')
+                ->setParameter('uuid', $uuid)
+            ;
+        }
+
+        return $queryBuilder
             ->addOrderBy('o.cartNumber', 'DESC')
             ->getQuery()
             ->getResult()
@@ -72,20 +86,46 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
         ;
     }
 
-    public function countCarts(ChannelInterface $channel, ?CustomerInterface $customer): int
+    public function countCarts(ChannelInterface $channel, ?CustomerInterface $customer, ?string $uuid): int
+    {
+        $queryBuilder = $this->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
+            ->andWhere('o.state = :state')
+            ->andWhere('o.channel = :channel')
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->setParameter('channel', $channel);
+
+        if ($customer !== null) {
+            $queryBuilder->andWhere('o.customer = :customer')
+                ->setParameter('customer', $customer);
+        }
+
+        if ($customer === null && $uuid !== null) {
+            $queryBuilder->andWhere('o.uuid = :uuid')
+                ->setParameter('uuid', $uuid);
+        }
+
+        return (int) $queryBuilder
+            ->addOrderBy('o.createdAt', 'DESC')
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
+
+    public function countNotLoggedCarts(ChannelInterface $channel, string $uuid)
     {
         return (int) $this->createQueryBuilder('o')
             ->select('COUNT(o.id)')
             ->andWhere('o.state = :state')
             ->andWhere('o.channel = :channel')
-            ->andWhere('o.customer = :customer')
+            ->andWhere('o.uuid = :uuid')
             ->setParameter('state', OrderInterface::STATE_CART)
             ->setParameter('channel', $channel)
-            ->setParameter('customer', $customer)
+            ->setParameter('uuid', $uuid)
             ->addOrderBy('o.createdAt', 'DESC')
             ->getQuery()
             ->getSingleScalarResult()
-        ;
+            ;
     }
 
     public function findLatestNotEmptyActiveCart(

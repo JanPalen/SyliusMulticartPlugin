@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace BitBag\SyliusMultiCartPlugin\Controller;
 
 use BitBag\SyliusMultiCartPlugin\Entity\CustomerInterface;
+use BitBag\SyliusMultiCartPlugin\Factory\DeviceUuidCookieFactoryInterface;
 use BitBag\SyliusMultiCartPlugin\Repository\OrderRepositoryInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
@@ -20,36 +21,32 @@ use Twig\Environment;
 
 final class ShowCartsAction
 {
-    private CustomerContextInterface $customerContext;
-
-    private ChannelContextInterface $channelContext;
-
-    private OrderRepositoryInterface $orderRepository;
-
-    private Environment $twig;
-
     public function __construct(
-        CustomerContextInterface $customerContext,
-        ChannelContextInterface $channelContext,
-        OrderRepositoryInterface $orderRepository,
-        Environment $twig,
+        private readonly CustomerContextInterface $customerContext,
+        private readonly ChannelContextInterface $channelContext,
+        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly Environment $twig,
+        private readonly DeviceUuidCookieFactoryInterface $deviceUuidCookieFactory,
     ) {
-        $this->customerContext = $customerContext;
-        $this->channelContext = $channelContext;
-        $this->orderRepository = $orderRepository;
-        $this->twig = $twig;
     }
 
     public function __invoke(string $template): Response
     {
+        $response = new Response();
+
         /** @var ChannelInterface $channel */
         $channel = $this->channelContext->getChannel();
         /** @var CustomerInterface $customer */
         $customer = $this->customerContext->getCustomer();
+        $uuid = null;
 
-        $carts = $this->orderRepository->findCarts($channel, $customer);
+        if (null === $customer) {
+            $uuid = $this->deviceUuidCookieFactory->setUuidCookie($response);
+        }
 
-        $counted = $this->orderRepository->countCarts($channel, $customer);
+        $carts = $this->orderRepository->findCarts($channel, $customer, $uuid);
+
+        $counted = $this->orderRepository->countCarts($channel, $customer, $uuid);
 
         $content = $this->twig->render(
             $template,
@@ -59,7 +56,8 @@ final class ShowCartsAction
                 'counted' => $counted,
             ],
         );
+        $response->setContent($content);
 
-        return new Response($content);
+        return $response;
     }
 }

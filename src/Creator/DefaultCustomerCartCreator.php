@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace BitBag\SyliusMultiCartPlugin\Creator;
 
 use BitBag\SyliusMultiCartPlugin\Entity\CustomerInterface;
+use BitBag\SyliusMultiCartPlugin\Factory\DeviceUuidCookieFactoryInterface;
 use BitBag\SyliusMultiCartPlugin\Repository\OrderRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
@@ -18,41 +19,25 @@ use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Customer\Context\CustomerContextInterface;
 use Sylius\Component\Order\Context\CartContextInterface;
 use Sylius\Component\Order\Context\CartNotFoundException;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class DefaultCustomerCartCreator implements DefaultCustomerCartCreatorInterface
 {
-    private CartContextInterface $shopBasedMultiCartContext;
-
-    private EntityManagerInterface $entityManager;
-
-    private CustomerContextInterface $customerContext;
-
-    private OrderRepositoryInterface $orderRepository;
-
-    private ChannelContextInterface $channelContext;
-
-    private TranslatorInterface $translator;
-
     private const MAX_CART_COUNT = 8;
 
     public function __construct(
-        CartContextInterface $shopBasedMultiCartContext,
-        EntityManagerInterface $entityManager,
-        CustomerContextInterface $customerContext,
-        OrderRepositoryInterface $orderRepository,
-        ChannelContextInterface $channelContext,
-        TranslatorInterface $translator,
+        private readonly CartContextInterface $shopBasedMultiCartContext,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly CustomerContextInterface $customerContext,
+        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly ChannelContextInterface $channelContext,
+        private readonly TranslatorInterface $translator,
+        private readonly DeviceUuidCookieFactoryInterface $deviceUuidCookieFactory,
     ) {
-        $this->shopBasedMultiCartContext = $shopBasedMultiCartContext;
-        $this->entityManager = $entityManager;
-        $this->customerContext = $customerContext;
-        $this->orderRepository = $orderRepository;
-        $this->channelContext = $channelContext;
-        $this->translator = $translator;
     }
 
-    public function createNewCart(): void
+    public function createNewCart(Response $response): void
     {
         /** @var ChannelInterface $channel */
         $channel = $this->channelContext->getChannel();
@@ -60,7 +45,11 @@ final class DefaultCustomerCartCreator implements DefaultCustomerCartCreatorInte
         /** @var CustomerInterface $customer */
         $customer = $this->customerContext->getCustomer();
 
-        $carts = $this->orderRepository->countCarts($channel, $customer);
+        if (null === $customer) {
+            $uuid = $this->deviceUuidCookieFactory->setUuidCookie($response);
+        }
+
+        $carts = $this->orderRepository->countCarts($channel, $customer, $uuid);
 
         if (self::MAX_CART_COUNT === $carts) {
             throw new CartNotFoundException(

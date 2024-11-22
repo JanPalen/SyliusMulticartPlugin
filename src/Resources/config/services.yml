@@ -40,6 +40,7 @@ services:
             - '@sylius.repository.order'
             - '@sylius.context.shopper'
             - '@translator'
+            - '@bitbag_sylius_multi_cart_plugin.factory.device_uuid_cookie_factory'
         tags:
             - { name: 'controller.service_arguments' }
 
