@@ -19,6 +19,3 @@ services:
             - '@bitbag_sylius_multi_cart_plugin.formatter.money_formatter'
         tags:
             - { name: 'controller.service_arguments' }
-
-    bitbag_sylius_multi_cart_plugin.factory.device_uuid_cookie_factory:
-        class: BitBag\SyliusMultiCartPlugin\Factory\DeviceUuidCookieFactory

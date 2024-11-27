@@ -14,7 +14,9 @@ trait OrderTrait
 {
     protected ?int $cartNumber = 1;
 
-    protected ?string $uuid = null;
+    protected ?string $machineId = null;
+
+    protected bool $isActive = false;
 
     public function getCartNumber(): ?int
     {
@@ -26,13 +28,23 @@ trait OrderTrait
         $this->cartNumber = $cartNumber;
     }
 
-    public function getUuid(): ?string
+    public function getMachineId(): ?string
     {
-        return $this->uuid;
+        return $this->machineId;
     }
 
-    public function setUuid(?string $uuid): void
+    public function setMachineId(?string $machineId): void
     {
-        $this->uuid = $uuid;
+        $this->machineId = $machineId;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): void
+    {
+        $this->isActive = $isActive;
     }
 }
