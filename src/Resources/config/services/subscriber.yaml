@@ -1,0 +1,5 @@
+services:
+  bitbag_sylius_multi_cart_plugin.event_subscriber.machine_id:
+    class: BitBag\SyliusMultiCartPlugin\EventSubscriber\MachineIdSubscriber
+    tags:
+      - { name: 'kernel.event_subscriber', event: 'kernel.exception' }

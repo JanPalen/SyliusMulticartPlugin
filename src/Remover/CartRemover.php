@@ -10,57 +10,60 @@ declare(strict_types=1);
 
 namespace BitBag\SyliusMultiCartPlugin\Remover;
 
-use BitBag\SyliusMultiCartPlugin\Entity\CustomerInterface;
 use BitBag\SyliusMultiCartPlugin\Entity\OrderInterface;
+use BitBag\SyliusMultiCartPlugin\EventSubscriber\MachineIdSubscriber;
 use BitBag\SyliusMultiCartPlugin\Exception\UnableToDeleteCartException;
 use BitBag\SyliusMultiCartPlugin\Repository\OrderRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
+use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Customer\Context\CustomerContextInterface;
 use Sylius\Component\Order\Context\CartNotFoundException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CartRemover implements CartRemoverInterface
 {
-    private ChannelContextInterface $channelContext;
-
-    private CustomerContextInterface $customerContext;
-
-    private OrderRepositoryInterface $orderRepository;
-
-    private EntityManagerInterface $entityManager;
-
-    private TranslatorInterface $translator;
-
     public function __construct(
-        ChannelContextInterface $channelContext,
-        CustomerContextInterface $customerContext,
-        OrderRepositoryInterface $orderRepository,
-        EntityManagerInterface $entityManager,
-        TranslatorInterface $translator,
+        private readonly ChannelContextInterface $channelContext,
+        private readonly CustomerContextInterface $customerContext,
+        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly TranslatorInterface $translator,
+        private readonly bool $allowMulticartForAnonymous,
     ) {
-        $this->channelContext = $channelContext;
-        $this->customerContext = $customerContext;
-        $this->orderRepository = $orderRepository;
-        $this->entityManager = $entityManager;
-        $this->translator = $translator;
     }
 
     public function removeCart(int $cartNumber): void
     {
         /** @var CustomerInterface $customer */
         $customer = $this->customerContext->getCustomer();
-        $this->validateCustomerIsNotNull($customer);
-        $this->validateRemovableCart($cartNumber, $customer);
+
+        if (!$this->allowMulticartForAnonymous) {
+            $this->validateCustomerIsNotNull($customer);
+        }
 
         /** @var ChannelInterface $channel */
         $channel = $this->channelContext->getChannel();
+
+        /** @var null|string $machineId */
+        $machineId = null;
+
+        if ((null === $customer && true === $this->allowMulticartForAnonymous)) {
+            $machineId = MachineIdSubscriber::getCartMachineId();
+        }
+
+        /** @var OrderInterface $activeCart */
+        $activeCart = $this->orderRepository->findActiveCart($channel, $customer, $machineId);
+
+        $activeCartNumber = $activeCart->getCartNumber();
+        $this->validateRemovableCart($cartNumber, $activeCartNumber);
 
         $carts = $this->orderRepository->findCartsGraterOrEqualNumber(
             $channel,
             $customer,
             $cartNumber,
+            $machineId,
         );
 
         /**
@@ -85,9 +88,9 @@ class CartRemover implements CartRemoverInterface
         }
     }
 
-    private function validateRemovableCart(int $cartNumber, CustomerInterface $customer): void
+    private function validateRemovableCart(int $cartNumber, int $activeCartNumber): void
     {
-        if ($cartNumber === $customer->getActiveCart()) {
+        if ($cartNumber === $activeCartNumber) {
             throw new UnableToDeleteCartException('bitbag_sylius_multicart_plugin.ui.cant_delete_active_cart');
         }
     }

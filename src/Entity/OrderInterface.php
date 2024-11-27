@@ -22,7 +22,7 @@ interface OrderInterface extends BaseOrderInterface
 
     public function setMachineId(?string $machineId): void;
 
-    public function isActive(): bool;
+    public function isActive(): ?bool;
 
-    public function setIsActive(bool $isActive): void;
+    public function setIsActive(?bool $isActive): void;
 }

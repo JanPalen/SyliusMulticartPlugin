@@ -10,21 +10,20 @@ declare(strict_types=1);
 
 namespace BitBag\SyliusMultiCartPlugin\Creator;
 
-use BitBag\SyliusMultiCartPlugin\Entity\CustomerInterface;
-use BitBag\SyliusMultiCartPlugin\Factory\DeviceUuidCookieFactoryInterface;
+use BitBag\SyliusMultiCartPlugin\EventSubscriber\MachineIdSubscriber;
 use BitBag\SyliusMultiCartPlugin\Repository\OrderRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
+use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Customer\Context\CustomerContextInterface;
 use Sylius\Component\Order\Context\CartContextInterface;
 use Sylius\Component\Order\Context\CartNotFoundException;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class DefaultCustomerCartCreator implements DefaultCustomerCartCreatorInterface
 {
-    private const MAX_CART_COUNT = 8;
+    private const int MAX_CART_COUNT = 8;
 
     public function __construct(
         private readonly CartContextInterface $shopBasedMultiCartContext,
@@ -33,23 +32,26 @@ final class DefaultCustomerCartCreator implements DefaultCustomerCartCreatorInte
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly ChannelContextInterface $channelContext,
         private readonly TranslatorInterface $translator,
-        private readonly DeviceUuidCookieFactoryInterface $deviceUuidCookieFactory,
+        private readonly bool $allowMulticartForAnonymous,
     ) {
     }
 
-    public function createNewCart(Response $response): void
+    public function createNewCart(): void
     {
         /** @var ChannelInterface $channel */
         $channel = $this->channelContext->getChannel();
 
-        /** @var CustomerInterface $customer */
+        /** @var null|CustomerInterface $customer */
         $customer = $this->customerContext->getCustomer();
 
-        if (null === $customer) {
-            $uuid = $this->deviceUuidCookieFactory->setUuidCookie($response);
+        /** @var null|string $machineId */
+        $machineId = null;
+
+        if ((null === $customer && true === $this->allowMulticartForAnonymous)) {
+            $machineId = MachineIdSubscriber::getCartMachineId();
         }
 
-        $carts = $this->orderRepository->countCarts($channel, $customer, $uuid);
+        $carts = $this->orderRepository->countCarts($channel, $customer, $machineId);
 
         if (self::MAX_CART_COUNT === $carts) {
             throw new CartNotFoundException(

@@ -10,9 +10,7 @@ declare(strict_types=1);
 
 namespace BitBag\SyliusMultiCartPlugin\Creator;
 
-use Symfony\Component\HttpFoundation\Response;
-
 interface DefaultCustomerCartCreatorInterface
 {
-    public function createNewCart(Response $response): void;
+    public function createNewCart(): void;
 }

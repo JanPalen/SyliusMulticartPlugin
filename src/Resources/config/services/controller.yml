@@ -6,7 +6,7 @@ services:
             - '@sylius.context.channel'
             - '@sylius.repository.order'
             - '@twig'
-            - '@bitbag_sylius_multi_cart_plugin.factory.device_uuid_cookie_factory'
+            - '%allow_multicart_for_anonymous%'
         tags:
             - { name: 'controller.service_arguments' }
 

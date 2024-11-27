@@ -18,7 +18,11 @@ use Sylius\Component\Core\Repository\OrderRepositoryInterface as BaseOrderReposi
 /** @phpstan-ignore-next-line - extends generic interface */
 interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
 {
-    public function findCarts(ChannelInterface $channel, ?CustomerInterface $customer, ?string $machineId): array;
+    public function findCarts(
+        ChannelInterface $channel,
+        ?CustomerInterface $customer,
+        ?string $machineId,
+    ): array;
 
     public function findCartsGraterOrEqualNumber(
         ChannelInterface $channel,
@@ -33,7 +37,11 @@ interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
         string $machineId,
     ): int;
 
-    public function countCarts(ChannelInterface $channel, ?CustomerInterface $customer, ?string $machineId): int;
+    public function countCarts(
+        ChannelInterface $channel,
+        ?CustomerInterface $customer,
+        ?string $machineId,
+    ): int;
 
     public function findLatestNotEmptyActiveCart(
         ChannelInterface $channel,
@@ -44,6 +52,13 @@ interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
     public function findActiveCart(
         ChannelInterface $channel,
         ?CustomerInterface $customer,
-        ?string $machineId
+        ?string $machineId,
+    ): ?OrderInterface;
+
+    public function findPickedCart(
+        ChannelInterface $channel,
+        ?CustomerInterface $customer,
+        ?string $machineId,
+        int $cartNumber,
     ): ?OrderInterface;
 }

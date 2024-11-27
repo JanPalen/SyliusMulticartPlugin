@@ -225,4 +225,40 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
             ->getOneOrNullResult()
         ;
     }
+
+    public function findPickedCart(
+        ChannelInterface $channel,
+        ?CustomerInterface $customer,
+        ?string $machineId,
+        int $cartNumber,
+    ): ?OrderInterface {
+        $queryBuilder = $this->createQueryBuilder('o')
+            ->andWhere('o.state = :state')
+            ->andWhere('o.channel = :channel')
+            ->andWhere('o.cartNumber = :cartNumber')
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->setParameter('channel', $channel)
+            ->setParameter('cartNumber', $cartNumber)
+        ;
+
+        if (null !== $customer) {
+            $queryBuilder
+                ->andWhere('o.customer = :customer')
+                ->setParameter('customer', $customer)
+            ;
+        }
+
+        if (null === $customer && null !== $machineId) {
+            $queryBuilder->andWhere('o.machineId = :machineId')
+                ->setParameter('machineId', $machineId)
+            ;
+        }
+
+        return $queryBuilder
+            ->addOrderBy('o.cartNumber', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
 }
