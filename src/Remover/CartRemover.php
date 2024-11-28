@@ -93,7 +93,7 @@ class CartRemover implements CartRemoverInterface
     {
         if ($cartNumber === $activeCartNumber) {
             throw new UnableToDeleteCartException(
-                'bitbag_sylius_multicart_plugin.ui.cant_delete_active_cart',
+                $this->translator->trans('bitbag_sylius_multicart_plugin.ui.cant_delete_active_cart'),
             );
         }
     }

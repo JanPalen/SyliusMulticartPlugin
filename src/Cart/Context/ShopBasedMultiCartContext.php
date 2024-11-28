@@ -24,6 +24,7 @@ use Sylius\Component\Locale\Context\LocaleNotFoundException;
 use Sylius\Component\Order\Context\CartContextInterface;
 use Sylius\Component\Order\Context\CartNotFoundException;
 use Sylius\Component\Order\Model\OrderInterface as BaseOrderInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
 
 final class ShopBasedMultiCartContext implements CartContextInterface
@@ -36,6 +37,7 @@ final class ShopBasedMultiCartContext implements CartContextInterface
         private readonly CartCustomizerInterface $cartCustomizer,
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly CookieContextInterface $cookieContext,
+        private readonly TranslatorInterface $translator,
         private readonly bool $allowMulticartForAnonymous,
     ) {
     }
@@ -61,7 +63,10 @@ final class ShopBasedMultiCartContext implements CartContextInterface
             $cart->setCurrencyCode($currency->getCode());
             $cart->setLocaleCode($this->shopperContext->getLocaleCode());
         } catch (ChannelNotFoundException | CurrencyNotFoundException | LocaleNotFoundException $exception) {
-            throw new CartNotFoundException('Sylius was not able to prepare the cart.', $exception);
+            throw new CartNotFoundException(
+                $this->translator->trans('bitbag_sylius_multicart_plugin.ui.sylius_was_not_able_to_prepare_the_cart'),
+                $exception
+            );
         }
 
         /** @var CustomerInterface|null $customer */
