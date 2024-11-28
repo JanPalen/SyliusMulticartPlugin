@@ -10,8 +10,8 @@ declare(strict_types=1);
 
 namespace BitBag\SyliusMultiCartPlugin\Switcher;
 
+use BitBag\SyliusMultiCartPlugin\Context\CookieContext;
 use BitBag\SyliusMultiCartPlugin\Entity\OrderInterface;
-use BitBag\SyliusMultiCartPlugin\EventSubscriber\MachineIdSubscriber;
 use BitBag\SyliusMultiCartPlugin\Repository\OrderRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
@@ -28,6 +28,7 @@ class CartSwitcher implements CartSwitcherInterface
         private readonly EntityManagerInterface $entityManager,
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly ChannelContextInterface $channelContext,
+        private readonly CookieContext $cookieContext,
         private readonly TranslatorInterface $translator,
         private readonly bool $allowMulticartForAnonymous,
     ) {
@@ -51,7 +52,7 @@ class CartSwitcher implements CartSwitcherInterface
         $machineId = null;
 
         if ((null === $customer && true === $this->allowMulticartForAnonymous)) {
-            $machineId = MachineIdSubscriber::getCartMachineId();
+            $machineId = $this->cookieContext->getMachineId();
         }
 
         /** @var OrderInterface $activeCart */

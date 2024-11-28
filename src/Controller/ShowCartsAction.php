@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace BitBag\SyliusMultiCartPlugin\Controller;
 
-use BitBag\SyliusMultiCartPlugin\EventSubscriber\MachineIdSubscriber;
+use BitBag\SyliusMultiCartPlugin\Context\CookieContext;
 use BitBag\SyliusMultiCartPlugin\Repository\OrderRepositoryInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
@@ -25,6 +25,7 @@ final class ShowCartsAction
         private readonly CustomerContextInterface $customerContext,
         private readonly ChannelContextInterface $channelContext,
         private readonly OrderRepositoryInterface $orderRepository,
+        private readonly CookieContext $cookieContext,
         private readonly Environment $twig,
         private readonly bool $allowMulticartForAnonymous,
     ) {
@@ -41,7 +42,7 @@ final class ShowCartsAction
         $machineId = null;
 
         if (null === $customer && true === $this->allowMulticartForAnonymous) {
-            $machineId = MachineIdSubscriber::getCartMachineId();
+            $machineId = $this->cookieContext->getMachineId();
         }
 
         $carts = $this->orderRepository->findCarts($channel, $customer, $machineId);

@@ -2,7 +2,7 @@ imports:
     - { resource: "services/decorator.yml" }
     - { resource: "services/controller.yml" }
     - { resource: "services/factory.yml" }
-    - { resource: "services/subscriber.yaml" }
+    - { resource: "services/listener.yaml" }
 
 parameters:
     allow_multicart_for_anonymous: true
@@ -43,6 +43,7 @@ services:
             - '@sylius.context.customer'
             - '@sylius.repository.order'
             - '@sylius.context.shopper'
+            - '@bitbag_sylius_multi_cart_plugin.context.cookie'
             - '@translator'
             - '%allow_multicart_for_anonymous%'
         tags:
@@ -58,6 +59,7 @@ services:
             - '@sylius.context.customer'
             - '@sylius.repository.order'
             - '@doctrine.orm.entity_manager'
+            - '@bitbag_sylius_multi_cart_plugin.context.cookie'
             - '@translator'
             - '%allow_multicart_for_anonymous%'
         tags:
@@ -73,6 +75,7 @@ services:
             - '@doctrine.orm.entity_manager'
             - '@sylius.repository.order'
             - '@sylius.context.shopper'
+            - '@bitbag_sylius_multi_cart_plugin.context.cookie'
             - '@translator'
             - '%allow_multicart_for_anonymous%'
         tags:
@@ -87,3 +90,6 @@ services:
             - '@sylius.repository.order'
         tags:
             - { name: 'controller.service_arguments' }
+
+    bitbag_sylius_multi_cart_plugin.context.cookie:
+        class: BitBag\SyliusMultiCartPlugin\Context\CookieContext

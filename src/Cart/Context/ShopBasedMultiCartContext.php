@@ -10,9 +10,10 @@ declare(strict_types=1);
 
 namespace BitBag\SyliusMultiCartPlugin\Cart\Context;
 
+use BitBag\SyliusMultiCartPlugin\Context\CookieContext;
 use BitBag\SyliusMultiCartPlugin\Customizer\CartCustomizerInterface;
 use BitBag\SyliusMultiCartPlugin\Entity\OrderInterface;
-use BitBag\SyliusMultiCartPlugin\EventSubscriber\MachineIdSubscriber;
+use BitBag\SyliusMultiCartPlugin\Repository\OrderRepositoryInterface;
 use Sylius\Component\Channel\Context\ChannelNotFoundException;
 use Sylius\Component\Core\Context\ShopperContextInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
@@ -33,6 +34,8 @@ final class ShopBasedMultiCartContext implements CartContextInterface
         private readonly CartContextInterface $cartContext,
         private readonly ShopperContextInterface $shopperContext,
         private readonly CartCustomizerInterface $cartCustomizer,
+        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly CookieContext $cookieContext,
         private readonly bool $allowMulticartForAnonymous,
     ) {
     }
@@ -43,8 +46,9 @@ final class ShopBasedMultiCartContext implements CartContextInterface
             return $this->cart;
         }
 
-        $cart = $this->cartContext->getCart();
         /** @var OrderInterface|null $cart */
+        $cart = $this->cartContext->getCart();
+
         Assert::isInstanceOf($cart, OrderInterface::class);
 
         try {
@@ -71,8 +75,14 @@ final class ShopBasedMultiCartContext implements CartContextInterface
         }
 
         if (null === $customer && true === $this->allowMulticartForAnonymous) {
-            $machineId = MachineIdSubscriber::getCartMachineId();
+            $machineId = $this->cookieContext->getMachineId();
             $cart->setMachineId($machineId);
+        }
+
+        /** @var OrderInterface|null $activeCart */
+        $activeCart = $this->orderRepository->findActiveCart($channel, $customer, $machineId);
+        if (null !== $activeCart) {
+            $activeCart->setIsActive(false);
         }
 
         $this->cartCustomizer->increaseCartNumberOnCart($channel, $customer, $cart, $machineId);

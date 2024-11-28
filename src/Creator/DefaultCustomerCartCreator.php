@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace BitBag\SyliusMultiCartPlugin\Creator;
 
-use BitBag\SyliusMultiCartPlugin\EventSubscriber\MachineIdSubscriber;
+use BitBag\SyliusMultiCartPlugin\Context\CookieContext;
 use BitBag\SyliusMultiCartPlugin\Repository\OrderRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
@@ -31,6 +31,7 @@ final class DefaultCustomerCartCreator implements DefaultCustomerCartCreatorInte
         private readonly CustomerContextInterface $customerContext,
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly ChannelContextInterface $channelContext,
+        private readonly CookieContext $cookieContext,
         private readonly TranslatorInterface $translator,
         private readonly bool $allowMulticartForAnonymous,
     ) {
@@ -48,7 +49,7 @@ final class DefaultCustomerCartCreator implements DefaultCustomerCartCreatorInte
         $machineId = null;
 
         if ((null === $customer && true === $this->allowMulticartForAnonymous)) {
-            $machineId = MachineIdSubscriber::getCartMachineId();
+            $machineId = $this->cookieContext->getMachineId();
         }
 
         $carts = $this->orderRepository->countCarts($channel, $customer, $machineId);

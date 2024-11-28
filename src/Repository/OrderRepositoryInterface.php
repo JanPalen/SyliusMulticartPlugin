@@ -34,7 +34,7 @@ interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
     public function findBiggestCartNumber(
         ChannelInterface $channel,
         ?CustomerInterface $customer,
-        string $machineId,
+        ?string $machineId,
     ): int;
 
     public function countCarts(

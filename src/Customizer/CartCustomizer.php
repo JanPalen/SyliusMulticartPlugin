@@ -41,7 +41,7 @@ final class CartCustomizer implements CartCustomizerInterface
         ChannelInterface $channel,
         ?CustomerInterface $customer,
         OrderInterface $cart,
-        string $machineId,
+        ?string $machineId,
     ): void {
         $counter = $this->orderRepository->findBiggestCartNumber($channel, $customer, $machineId);
 

@@ -10,8 +10,8 @@ declare(strict_types=1);
 
 namespace BitBag\SyliusMultiCartPlugin\Remover;
 
+use BitBag\SyliusMultiCartPlugin\Context\CookieContext;
 use BitBag\SyliusMultiCartPlugin\Entity\OrderInterface;
-use BitBag\SyliusMultiCartPlugin\EventSubscriber\MachineIdSubscriber;
 use BitBag\SyliusMultiCartPlugin\Exception\UnableToDeleteCartException;
 use BitBag\SyliusMultiCartPlugin\Repository\OrderRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,6 +29,7 @@ class CartRemover implements CartRemoverInterface
         private readonly CustomerContextInterface $customerContext,
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly EntityManagerInterface $entityManager,
+        private readonly CookieContext $cookieContext,
         private readonly TranslatorInterface $translator,
         private readonly bool $allowMulticartForAnonymous,
     ) {
@@ -50,7 +51,7 @@ class CartRemover implements CartRemoverInterface
         $machineId = null;
 
         if ((null === $customer && true === $this->allowMulticartForAnonymous)) {
-            $machineId = MachineIdSubscriber::getCartMachineId();
+            $machineId = $this->cookieContext->getMachineId();
         }
 
         /** @var OrderInterface $activeCart */
