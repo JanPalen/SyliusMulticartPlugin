@@ -35,7 +35,7 @@ final class ShowCartsAction
     {
         /** @var ChannelInterface $channel */
         $channel = $this->channelContext->getChannel();
-        /** @var CustomerInterface $customer */
+        /** @var CustomerInterface|null $customer */
         $customer = $this->customerContext->getCustomer();
 
         /** @var string|null $machineId */

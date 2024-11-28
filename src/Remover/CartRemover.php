@@ -37,7 +37,7 @@ class CartRemover implements CartRemoverInterface
 
     public function removeCart(int $cartNumber): void
     {
-        /** @var CustomerInterface $customer */
+        /** @var CustomerInterface|null $customer */
         $customer = $this->customerContext->getCustomer();
 
         if (!$this->allowMulticartForAnonymous) {
@@ -89,11 +89,11 @@ class CartRemover implements CartRemoverInterface
         }
     }
 
-    private function validateRemovableCart(int $cartNumber, int $activeCartNumber): void
+    private function validateRemovableCart(int $cartNumber, ?int $activeCartNumber): void
     {
         if ($cartNumber === $activeCartNumber) {
             throw new UnableToDeleteCartException(
-                'bitbag_sylius_multicart_plugin.ui.cant_delete_active_cart'
+                'bitbag_sylius_multicart_plugin.ui.cant_delete_active_cart',
             );
         }
     }
