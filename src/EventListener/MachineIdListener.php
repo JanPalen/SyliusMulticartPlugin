@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace BitBag\SyliusMultiCartPlugin\EventListener;
 
-use BitBag\SyliusMultiCartPlugin\Context\CookieContext;
+use BitBag\SyliusMultiCartPlugin\Context\CookieContextInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -20,11 +20,12 @@ use Symfony\Component\Uid\Uuid;
 final class MachineIdListener
 {
     public function __construct(
-        private readonly CookieContext $cookieContext,
+        private readonly CookieContextInterface $cookieContext,
     ) {
     }
 
     private const string MACHINE_ID = 'machine_id';
+
     private bool $hasMachineIdCookie = false;
 
     private bool $mainRequest = false;
@@ -63,8 +64,8 @@ final class MachineIdListener
                 new Cookie(
                     self::MACHINE_ID,
                     $this->cookieContext->getMachineId(),
-                    time() + 60 * 60 * 24 * 365
-                )
+                    time() + 60 * 60 * 24 * 365,
+                ),
             );
         }
     }

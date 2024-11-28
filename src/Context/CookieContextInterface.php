@@ -11,17 +11,9 @@ declare(strict_types=1);
 
 namespace BitBag\SyliusMultiCartPlugin\Context;
 
-final class CookieContext implements CookieContextInterface
+interface CookieContextInterface
 {
-    private ?string $machineId = null;
+    public function getMachineId(): ?string;
 
-    public function getMachineId(): ?string
-    {
-        return $this->machineId;
-    }
-
-    public function setMachineId(?string $machineId): void
-    {
-        $this->machineId = $machineId;
-    }
+    public function setMachineId(?string $machineId): void;
 }

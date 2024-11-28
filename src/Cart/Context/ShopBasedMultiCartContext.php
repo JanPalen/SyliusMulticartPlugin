@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace BitBag\SyliusMultiCartPlugin\Cart\Context;
 
-use BitBag\SyliusMultiCartPlugin\Context\CookieContext;
+use BitBag\SyliusMultiCartPlugin\Context\CookieContextInterface;
 use BitBag\SyliusMultiCartPlugin\Customizer\CartCustomizerInterface;
 use BitBag\SyliusMultiCartPlugin\Entity\OrderInterface;
 use BitBag\SyliusMultiCartPlugin\Repository\OrderRepositoryInterface;
@@ -35,7 +35,7 @@ final class ShopBasedMultiCartContext implements CartContextInterface
         private readonly ShopperContextInterface $shopperContext,
         private readonly CartCustomizerInterface $cartCustomizer,
         private readonly OrderRepositoryInterface $orderRepository,
-        private readonly CookieContext $cookieContext,
+        private readonly CookieContextInterface $cookieContext,
         private readonly bool $allowMulticartForAnonymous,
     ) {
     }
@@ -64,10 +64,10 @@ final class ShopBasedMultiCartContext implements CartContextInterface
             throw new CartNotFoundException('Sylius was not able to prepare the cart.', $exception);
         }
 
-        /** @var null|CustomerInterface $customer */
+        /** @var CustomerInterface|null $customer */
         $customer = $this->shopperContext->getCustomer();
 
-        /** @var null|string $machineId */
+        /** @var string|null $machineId */
         $machineId = null;
 
         if (null !== $customer) {

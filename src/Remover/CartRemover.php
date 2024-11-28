@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace BitBag\SyliusMultiCartPlugin\Remover;
 
-use BitBag\SyliusMultiCartPlugin\Context\CookieContext;
+use BitBag\SyliusMultiCartPlugin\Context\CookieContextInterface;
 use BitBag\SyliusMultiCartPlugin\Entity\OrderInterface;
 use BitBag\SyliusMultiCartPlugin\Exception\UnableToDeleteCartException;
 use BitBag\SyliusMultiCartPlugin\Repository\OrderRepositoryInterface;
@@ -29,7 +29,7 @@ class CartRemover implements CartRemoverInterface
         private readonly CustomerContextInterface $customerContext,
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly CookieContext $cookieContext,
+        private readonly CookieContextInterface $cookieContext,
         private readonly TranslatorInterface $translator,
         private readonly bool $allowMulticartForAnonymous,
     ) {
@@ -47,7 +47,7 @@ class CartRemover implements CartRemoverInterface
         /** @var ChannelInterface $channel */
         $channel = $this->channelContext->getChannel();
 
-        /** @var null|string $machineId */
+        /** @var string|null $machineId */
         $machineId = null;
 
         if ((null === $customer && true === $this->allowMulticartForAnonymous)) {

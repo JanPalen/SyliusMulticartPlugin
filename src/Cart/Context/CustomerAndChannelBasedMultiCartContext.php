@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace BitBag\SyliusMultiCartPlugin\Cart\Context;
 
-use BitBag\SyliusMultiCartPlugin\Context\CookieContext;
+use BitBag\SyliusMultiCartPlugin\Context\CookieContextInterface;
 use BitBag\SyliusMultiCartPlugin\Repository\OrderRepositoryInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Channel\Context\ChannelNotFoundException;
@@ -28,7 +28,7 @@ final class CustomerAndChannelBasedMultiCartContext implements CartContextInterf
         private readonly CustomerContextInterface $customerContext,
         private readonly ChannelContextInterface $channelContext,
         private readonly OrderRepositoryInterface $orderRepository,
-        private readonly CookieContext $cookieContext,
+        private readonly CookieContextInterface $cookieContext,
         private readonly TranslatorInterface $translator,
         private readonly bool $allowMulticartForAnonymous,
     ) {
@@ -54,7 +54,7 @@ final class CustomerAndChannelBasedMultiCartContext implements CartContextInterf
             );
         }
 
-        /** @var null|string $machineId */
+        /** @var string|null $machineId */
         $machineId = null;
 
         if ((null === $customer && true === $this->allowMulticartForAnonymous)) {

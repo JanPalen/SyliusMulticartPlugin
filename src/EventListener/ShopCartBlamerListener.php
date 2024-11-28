@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace BitBag\SyliusMultiCartPlugin\EventListener;
 
-use BitBag\SyliusMultiCartPlugin\Context\CookieContext;
+use BitBag\SyliusMultiCartPlugin\Context\CookieContextInterface;
 use BitBag\SyliusMultiCartPlugin\Entity\OrderInterface;
 use BitBag\SyliusMultiCartPlugin\Repository\OrderRepositoryInterface;
 use Sylius\Bundle\CoreBundle\SectionResolver\SectionProviderInterface;
@@ -35,7 +35,7 @@ final class ShopCartBlamerListener
         private readonly SectionProviderInterface $uriBasedSectionContext,
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly ChannelContextInterface $channelContext,
-        private readonly CookieContext $cookieContext,
+        private readonly CookieContextInterface $cookieContext,
         private readonly bool $allowMulticartForAnonymous,
     ) {
     }
