@@ -92,7 +92,9 @@ class CartRemover implements CartRemoverInterface
     private function validateRemovableCart(int $cartNumber, int $activeCartNumber): void
     {
         if ($cartNumber === $activeCartNumber) {
-            throw new UnableToDeleteCartException('bitbag_sylius_multicart_plugin.ui.cant_delete_active_cart');
+            throw new UnableToDeleteCartException(
+                'bitbag_sylius_multicart_plugin.ui.cant_delete_active_cart'
+            );
         }
     }
 }
