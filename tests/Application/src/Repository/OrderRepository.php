@@ -22,7 +22,7 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
     public function findCarts(
         ChannelInterface $channel,
         ?CustomerInterface $customer,
-        ?string $machineId
+        ?string $machineId,
     ): array {
         $queryBuilder = $this->createQueryBuilder('o')
             ->andWhere('o.state = :state')
@@ -90,7 +90,7 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
     public function findBiggestCartNumber(
         ChannelInterface $channel,
         ?CustomerInterface $customer,
-        ?string $machineId
+        ?string $machineId,
     ): int {
         $queryBuilder = $this->createQueryBuilder('o')
             ->select('MAX(o.cartNumber)')
@@ -259,6 +259,6 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
 }
