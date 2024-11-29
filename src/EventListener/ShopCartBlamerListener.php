@@ -76,6 +76,7 @@ final class ShopCartBlamerListener
 
             foreach ($carts as $cart) {
                 $cart->setCustomerWithAuthorization($customer);
+                $cart->setMachineId(null);
             }
 
             return;

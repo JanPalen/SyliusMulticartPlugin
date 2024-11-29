@@ -77,6 +77,7 @@ final class ShopBasedMultiCartContext implements CartContextInterface
 
         if (null !== $customer) {
             $this->cartCustomizer->copyDefaultToBillingAddress($cart, $customer);
+            $cart->setMachineId($machineId);
         }
 
         if (null === $customer && true === $this->allowMulticartForAnonymous) {
